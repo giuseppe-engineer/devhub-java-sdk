@@ -1,0 +1,2628 @@
+openapi: 3.1.0
+info:
+  description: |-
+    DevHub API provides a structured set of developer-oriented services designed to simplify common backend tasks and accelerate application development.
+
+    The platform is organized into functional domains, each delivering reliable and production-ready utilities.
+
+    ### 📄 Document & Data Processing
+    - Markdown → HTML conversion
+    - Markdown → PDF rendering (custom themes supported)
+    - CSV → JSON conversion
+    - JSON → XML conversion
+    - and more..
+
+    Designed for automation pipelines, CMS integrations and content-driven applications.
+
+    ### 🛠 Utilities
+    - UUID generation
+    - Random password generation
+    - Minify CSS
+    - Minify JS
+
+    Lightweight, fast and suitable for system-level integration.
+
+    ### 🔐 Security & Data Protection
+    - Data sanitization
+    - Data validation
+
+    Designed to enforce data integrity, prevent common security threats, and ensure safe handling of user input across applications.
+
+    ### 🚧 Upcoming Services
+    Additional modules currently under development, including notification services and external integrations.
+
+    ### Platform Features
+    - JWT Authentication (Bearer Token)
+    - Per-endpoint rate limiting
+    - Consistent validation and predictable error handling
+    - Secure-by-default design
+
+    The API surface will expand progressively while maintaining backward compatibility.
+
+    **Maintained and designed by <a href="mailto:info@giuseppecocchiara.it">Giuseppe Cocchiara</a>, founder of DevHub project**
+  title: DevHub API Platform
+  version: "1.0"
+servers:
+- description: Default base path
+  url: http://localhost:8080/
+security:
+- bearerAuth: []
+paths:
+  /api/v1/tools/reverse:
+    post:
+      description: Reverses the provided text string and returns the reversed value.
+      operationId: reverse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Text"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Text"
+          description: Text successfully reversed
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid input
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "413":
+          content:
+            application/json:
+              example:
+                error: "Payload Too Large: the request size exceeds the limit."
+                status: 413
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Payload too large
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many request
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+      summary: Reverse a text
+      tags:
+      - Tools
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/tools/password:
+    post:
+      description: "Generates a secure and customizable password using either predefined\
+        \ strength presets or manual composition rules.<br/><br/><h4>Key Features:</h4><ul><li>Four\
+        \ strength presets: <b>WEAK</b>, <b>MEDIUM</b>, <b>STRONG</b>, <b>ULTRA</b></li><li>Optional\
+        \ manual configuration (letters, numbers, special characters)</li><li>Selective\
+        \ exclusion of specific special characters</li><li>Uses <code>SecureRandom</code>\
+        \ for cryptographic-grade randomness</li></ul><h4>Behavior:</h4><ul><li>If\
+        \ <code>strength</code> is provided, manual parameters are ignored.</li><li>When\
+        \ using a predefined strength, at least one character per category is guaranteed.</li><li>Excluded\
+        \ special characters are fully removed from generation.</li></ul><h4>Authentication:</h4>Requires\
+        \ a valid <code>Bearer Token</code> in the Authorization header."
+      operationId: generatePassword
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Strong preset:
+                description: Strong preset
+                value:
+                  strength: STRONG
+                  excludedSpecials: .@|!
+              Ultra preset:
+                description: Ultra preset
+                value:
+                  strength: ULTRA
+              Manual configuration:
+                description: Manual configuration
+                value:
+                  length: 12
+                  includeLetters: true
+                  includeNumbers: false
+                  includeSpecials: true
+                  excludedSpecials: '!@#'
+            schema:
+              $ref: "#/components/schemas/PasswordRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                password: A6d!bXy3@qP9
+              schema:
+                $ref: "#/components/schemas/PasswordResponse"
+          description: Password successfully generated
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid input
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many request
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+      summary: Generate a random password
+      tags:
+      - Tools
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/tools/minify-js:
+    post:
+      description: "Minifies a JavaScript string to reduce size and optimize delivery\
+        \ for frontend applications.<br/><br/><h4>Key Features:</h4><ul><li>Removes\
+        \ unnecessary whitespace and comments</li><li>Optimizes output for production\
+        \ environments</li><li>Preserves valid JavaScript semantics</li></ul><h4>Validation\
+        \ & Security:</h4><ul><li>Maximum input size: 10MiB</li><li>Performs advanced\
+        \ security analysis to detect potentially unsafe constructs</li></ul><h4>Authentication:</h4>Requires\
+        \ a valid <code>Bearer Token</code> in the Authorization header."
+      operationId: minifyJs
+      requestBody:
+        content:
+          text/plain:
+            example: |-
+              function myFunction() {
+                document.getElementById("demo").innerHTML = "Paragraph changed.";
+              }
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          content:
+            text/plain:
+              example: "function myFunction(){document.getElementById(\"demo\").innerHTML=\"\
+                Paragraph changed.\"}"
+              schema:
+                type: string
+          description: JavaScript successfully minified
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid input
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "413":
+          content:
+            application/json:
+              example:
+                error: "Payload Too Large: the request size exceeds the limit."
+                status: 413
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Payload too large
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many request
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+      summary: Minify JavaScript
+      tags:
+      - Tools
+      x-content-type: text/plain
+      x-accepts:
+      - application/json
+      - text/plain
+  /api/v1/tools/minify-css:
+    post:
+      description: "Minifies a CSS string using YUI Compressor for reliable and optimized\
+        \ output.<br/><br/><h4>Key Features:</h4><ul><li>Removes unnecessary whitespace\
+        \ and comments</li><li>Removes redundant semicolons</li><li>Fully compatible\
+        \ with valid CSS3 syntax</li><li>Optimized for production deployment and automation\
+        \ pipelines</li></ul><h4>Validation:</h4><ul><li>Maximum input size: 10MiB</li></ul><h4>Authentication:</h4>Requires\
+        \ a valid <code>Bearer Token</code> in the Authorization header."
+      operationId: minifyCss
+      requestBody:
+        content:
+          text/plain:
+            example: ".a { color : red}; .b { margin : 0}"
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          content:
+            text/plain:
+              example: ".a{color:red}.b{margin:0}"
+              schema:
+                type: string
+          description: CSS successfully minified
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid input
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "413":
+          content:
+            application/json:
+              example:
+                error: "Payload Too Large: the request size exceeds the limit."
+                status: 413
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Payload too large
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many request
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+      summary: Minify CSS
+      tags:
+      - Tools
+      x-content-type: text/plain
+      x-accepts:
+      - application/json
+      - text/plain
+  /api/v1/refresh-token:
+    post:
+      description: Returns a new access token and optionally a new refresh token
+      operationId: refreshToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+          description: New access token issued
+        "401":
+          content:
+            application/json:
+              example:
+                error: Unauthorized
+                status: 401
+                path: /api/v1/refresh-token
+                requestId: ee1543a0-1941-4df4-85fd-c02a5d9ace3f
+                supportCode: null
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+      summary: Refresh JWT access token using a valid refresh token
+      tags:
+      - Login
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/login:
+    post:
+      description: "It returns the Bearer token in case of valid credentials, unauthorized\
+        \ (401) otherwise"
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+          description: Valid credentials
+        "401":
+          content:
+            application/json:
+              example:
+                error: Unauthorized
+                status: 401
+                path: /api/v1/login
+                requestId: ee1543a0-1941-4df4-85fd-c02a5d9ace3f
+                supportCode: null
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: Forbidden
+                status: 403
+                path: /api/v1/login
+                requestId: ee1543a0-1941-4df4-85fd-c02a5d9ace3f
+                supportCode: null
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+      summary: The service authenticates the API Client by username and password
+      tags:
+      - Login
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/data-protection/validate:
+    post:
+      description: "<p>This API validates input data against a configurable set of\
+        \ rules without modifying the original value. It is designed to enforce data\
+        \ integrity, ensure format correctness, and detect potentially unsafe input\
+        \ such as malicious patterns.</p><h4>Key Features</h4><ul><li>Supports multiple\
+        \ validation rules (EMAIL, PHONE, URL, REGEX, etc.)</li><li>Flexible rule\
+        \ configuration with parameters (e.g. MIN_LENGTH:8, MAX_LENGTH:50)</li><li>Fail-fast\
+        \ or full validation modes</li><li>Built-in security checks (XSS and SQL injection\
+        \ detection)</li><li>Extensible validation engine for custom rules</li></ul><h4>Use\
+        \ Cases</h4><ul><li>Validate user input in forms (email, password, phone,\
+        \ etc.)</li><li>Enforce backend validation rules before processing data</li><li>Detect\
+        \ potentially malicious input (XSS, SQL injection)</li><li>Apply centralized\
+        \ validation logic across multiple services</li></ul><h4>Request Parameters</h4><ul><li><b>input</b>:\
+        \ Raw input string to validate</li><li><b>rules</b>: List of validation rules\
+        \ to apply (e.g. REQUIRED, EMAIL, MIN_LENGTH:8, REGEX:...)</li><li><b>failFast</b>:\
+        \ If true, stops validation at the first detected error (default: false)</li></ul><h4>Supported\
+        \ Rules</h4><ul><li><b>REQUIRED</b>: Ensures input is not null or empty</li><li><b>EMAIL</b>:\
+        \ Validates email format</li><li><b>PHONE</b>: Validates phone number format</li><li><b>URL</b>:\
+        \ Validates URL format</li><li><b>MIN_LENGTH:n</b>: Minimum input length</li><li><b>MAX_LENGTH:n</b>:\
+        \ Maximum input length</li><li><b>REGEX:pattern</b>: Custom regex validation</li><li><b>NO_XSS</b>:\
+        \ Detects potential XSS patterns</li><li><b>NO_SQL_INJECTION</b>: Detects\
+        \ SQL injection patterns</li></ul><h4>Authentication:</h4>Requires a valid\
+        \ <code>Bearer Token</code> in the Authorization header."
+      operationId: validate
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Email validation:
+                description: Email validation
+                value:
+                  input: test@example.com
+                  rules:
+                  - REQUIRED
+                  - EMAIL
+              Password policy:
+                description: Password policy
+                value:
+                  input: abc123
+                  rules:
+                  - MIN_LENGTH:8
+                  - "REGEX:^(?=.*[A-Z]).+$"
+              Security validation:
+                description: Security validation
+                value:
+                  input: <script>alert(1)</script>
+                  rules:
+                  - NO_XSS
+              Phone validation with length constraints:
+                description: Phone validation with length constraints
+                value:
+                  input: +39 347 1234567
+                  rules:
+                  - PHONE
+              Text validation with length constraints:
+                description: Text validation with length constraints
+                value:
+                  input: My simple text to evaluate
+                  rules:
+                  - MIN_LENGTH:5
+                  - MIN_LENGTH:20
+              URL validation:
+                description: URL validation
+                value:
+                  input: https://example.com
+                  rules:
+                  - URL
+              Mixed validation with invalid rule handling:
+                description: Mixed validation with invalid rule handling
+                value:
+                  input: admin' OR 1=1
+                  rules:
+                  - NO_SQL_INJECTION
+                  - UNKNOWN_RULE
+                  - MIN_LENGTH:5
+            schema:
+              $ref: "#/components/schemas/ValidateRequest"
+        description: Validate request payload. Provide input data and list of rules
+          necessary to validate data.
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                VALID - All rules passed:
+                  description: VALID - All rules passed
+                  summary: Input satisfies all validation rules
+                  value:
+                    valid: true
+                    errors: []
+                INVALID - Multiple validation errors:
+                  description: INVALID - Multiple validation errors
+                  summary: Input fails multiple rules including security and invalid
+                    rule
+                  value:
+                    valid: false
+                    errors:
+                    - rule: NO_SQL_INJECTION
+                      message: Potential SQL injection detected
+                    - rule: INVALID_RULE
+                      message: "Unknown validation rule: UNKNOWN_RULE"
+                    - rule: MIN_LENGTH
+                      message: Minimum length is 8
+              schema:
+                $ref: "#/components/schemas/ValidateResponse"
+          description: Validation completed successfully
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/data-protection/example
+                requestId: d9022416-c58a-7293-88bb-21acd7ab5d89
+                supportCode: DATA_PROTECTION_001
+                timestamp: 2026-04-15T22:32:27.345
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid input or CSV formatting options
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/data-protection/example
+                requestId: d9022416-c58a-7293-88bb-21acd7ab5d89
+                supportCode: DATA_PROTECTION_001
+                timestamp: 2026-04-15T22:32:27.345
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/data-protection/example
+                requestId: d9022416-c58a-7293-88bb-21acd7ab5d89
+                supportCode: DATA_PROTECTION_001
+                timestamp: 2026-04-15T22:32:27.345
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/data-protection/example
+                requestId: d9022416-c58a-7293-88bb-21acd7ab5d89
+                supportCode: DATA_PROTECTION_001
+                timestamp: 2026-04-15T22:32:27.345
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many requests
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/data-protection/example
+                requestId: d9022416-c58a-7293-88bb-21acd7ab5d89
+                supportCode: DATA_PROTECTION_001
+                timestamp: 2026-04-15T22:32:27.345
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal server error
+      security:
+      - bearerAuth: []
+      summary: Validate input against a set of rules
+      tags:
+      - Data Protection
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/data-protection/sanitize:
+    post:
+      description: "<p>This API sanitizes input data based on the specified context\
+        \ (HTML, JSON, CSV, LOG) and optional post-processing operations. It is designed\
+        \ to prevent common security risks such as XSS, CSV injection, log injection,\
+        \ and sensitive data exposure.</p><h4>Key Features</h4><ul><li>Context-aware\
+        \ sanitization (HTML, JSON, CSV, LOG)</li><li>Detection and mitigation of\
+        \ security threats (XSS, injection, PII exposure)</li><li>Post-processing\
+        \ transformations (whitespace normalization, lowercase, accent removal)</li><li>Detailed\
+        \ audit output: issues detected, actions applied, explanations</li><li>Risk\
+        \ scoring system (LOW, MEDIUM, HIGH)</li></ul><h4>Use Cases</h4><ul><li>Sanitize\
+        \ user-generated HTML content before rendering</li><li>Prevent CSV injection\
+        \ before exporting data to Excel</li><li>Clean and normalize logs to prevent\
+        \ log forging attacks</li><li>Mask sensitive data such as emails and phone\
+        \ numbers</li></ul><h4>Request Parameters</h4><ul><li><b>input</b>: Raw input\
+        \ string to sanitize</li><li><b>context</b>: Target context (HTML, JSON, CSV,\
+        \ LOG)</li><li><b>mode</b>: Sanitization mode (RELAXED, STRICT, HARDENING)\
+        \ necessary just for HTML context, ignored otherwise. Default value RELAXED</li><li><b>operations</b>:\
+        \ Optional list of transformations (NORMALIZE_WHITESPACE, LOWERCASE, REMOVE_ACCENTS,\
+        \ REMOVE_PII)</li></ul><h4>Response Fields</h4><ul><li><b>sanitized</b>: Final\
+        \ processed output</li><li><b>contextApplied</b>: Applied context</li><li><b>issuesDetected</b>:\
+        \ Security or data issues found</li><li><b>actionsApplied</b>: Operations\
+        \ and sanitization steps executed</li><li><b>explanations</b>: Human-readable\
+        \ explanations for detected issues</li><li><b>riskLevel</b>: LOW, MEDIUM,\
+        \ HIGH</li><li><b>riskScore</b>: Numeric risk score (0–100)</li></ul><h4>Authentication:</h4>Requires\
+        \ a valid <code>Bearer Token</code> in the Authorization header."
+      operationId: sanitize
+      requestBody:
+        content:
+          application/json:
+            examples:
+              HTML - XSS Removal:
+                description: HTML - XSS Removal
+                summary: Remove script tags and sanitize HTML
+                value:
+                  input: <script>alert('xss')</script><b>Hello</b>
+                  context: HTML
+                  mode: STRICT
+              CSV - Injection Prevention:
+                description: CSV - Injection Prevention
+                summary: Prevent Excel formula execution
+                value:
+                  input: =SUM(A1:A2)
+                  context: CSV
+              LOG - Injection Prevention:
+                description: LOG - Injection Prevention
+                summary: Prevent log forging via newline removal
+                value:
+                  input: |-
+                    User logged in
+                    ERROR: hacked
+                  context: LOG
+              PII + Transformations:
+                description: PII + Transformations
+                summary: Mask e-mail and apply lowercase
+                value:
+                  input: "Contact: john.doe@example.com! Thank you"
+                  context: HTML
+                  operations:
+                  - REMOVE_PII
+                  - LOWERCASE
+              Whitespace + Lowercase:
+                description: Whitespace + Lowercase
+                summary: Normalize spaces and convert to lowercase
+                value:
+                  input: '   Hello   WORLD   '
+                  context: HTML
+                  operations:
+                  - NORMALIZE_WHITESPACE
+                  - LOWERCASE
+              Mixed Scenario (XSS + PII):
+                description: Mixed Scenario (XSS + PII)
+                summary: Real-world mixed sanitization case
+                value:
+                  input: "<script>alert(1)</script> Contact:    john.doe@example.coms"
+                  context: HTML
+                  operations:
+                  - REMOVE_PII
+                  - NORMALIZE_WHITESPACE
+              JSON Sanitization:
+                description: JSON Sanitization
+                summary: Sanitize JSON content and remove PII
+                value:
+                  input: "{\"email\":\"user@test.com\",\"name\":\"Mario\"}"
+                  context: JSON
+                  operations:
+                  - REMOVE_PII
+            schema:
+              $ref: "#/components/schemas/SanitizationRequest"
+        description: "Sanitization request payload. Provide input data, target context,\
+          \ optional mode and operations."
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                LOW Risk - Simple normalization:
+                  description: LOW Risk - Simple normalization
+                  summary: "No security issues, only transformations applied"
+                  value:
+                    sanitized: hello world
+                    contextApplied: HTML
+                    issuesDetected: []
+                    actionsApplied:
+                    - NORMALIZE_WHITESPACE
+                    - LOWERCASE
+                    riskLevel: LOW
+                    riskScore: 0
+                    explanations: []
+                MEDIUM Risk - HTML sanitized:
+                  description: MEDIUM Risk - HTML sanitized
+                  summary: Unsafe HTML removed without explicit XSS patterns
+                  value:
+                    sanitized: <b>Hello</b>
+                    contextApplied: HTML
+                    issuesDetected:
+                    - HTML_SANITIZED
+                    actionsApplied:
+                    - REMOVE_UNSAFE_HTML
+                    riskLevel: MEDIUM
+                    riskScore: 60
+                    explanations:
+                    - Sanitized HTML by removing potentially unsafe or disallowed
+                      elements
+                HIGH Risk - XSS + PII detected:
+                  description: HIGH Risk - XSS + PII detected
+                  summary: Multiple security issues detected and mitigated
+                  value:
+                    sanitized: "Contact: [EMAIL]! Thank you"
+                    contextApplied: HTML
+                    issuesDetected:
+                    - XSS_SCRIPT_DETECTED
+                    - PII_DETECTED
+                    actionsApplied:
+                    - REMOVE_SCRIPT_TAG
+                    - REMOVE_PII
+                    - NORMALIZE_WHITESPACE
+                    riskLevel: HIGH
+                    riskScore: 85
+                    explanations:
+                    - Removed <script> tag to prevent XSS
+                    - Removed sensitive personal data (email/phone)
+              schema:
+                $ref: "#/components/schemas/SanitizationResult"
+          description: Sanitization completed successfully
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/data-protection/example
+                requestId: d9022416-c58a-7293-88bb-21acd7ab5d89
+                supportCode: DATA_PROTECTION_001
+                timestamp: 2026-04-15T22:32:27.345
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid input or CSV formatting options
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/data-protection/example
+                requestId: d9022416-c58a-7293-88bb-21acd7ab5d89
+                supportCode: DATA_PROTECTION_001
+                timestamp: 2026-04-15T22:32:27.345
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/data-protection/example
+                requestId: d9022416-c58a-7293-88bb-21acd7ab5d89
+                supportCode: DATA_PROTECTION_001
+                timestamp: 2026-04-15T22:32:27.345
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/data-protection/example
+                requestId: d9022416-c58a-7293-88bb-21acd7ab5d89
+                supportCode: DATA_PROTECTION_001
+                timestamp: 2026-04-15T22:32:27.345
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many requests
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/data-protection/example
+                requestId: d9022416-c58a-7293-88bb-21acd7ab5d89
+                supportCode: DATA_PROTECTION_001
+                timestamp: 2026-04-15T22:32:27.345
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal server error
+      security:
+      - bearerAuth: []
+      summary: Sanitize and secure input data across multiple contexts
+      tags:
+      - Data Protection
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/convert/data/yaml-to-json:
+    post:
+      description: |-
+        This endpoint accepts a valid YAML document and converts it into a JSON-formatted output. <br/>The conversion supports YAML objects, arrays, and scalar values as root elements.<h4>Key Features:</h4><ul><li>Validates input to ensure it is a well-formed YAML document before conversion</li><li>Supports YAML objects, arrays, and scalar root values</li><li>Preserves data types, structure, and nested content</li><li>Handles multiline values, numeric formats, and boolean representations correctly</li><li>Produces human-readable, pretty-printed JSON output</li></ul><h4>Use Cases:</h4><ul><li>Convert YAML configuration files into JSON format</li><li>Reformat YAML data for APIs or systems that require JSON input</li><li>Validate and normalize YAML content through JSON serialization</li></ul><h4>Examples:</h4><ul><li>Input YAML:<br/><code>server:
+          port: 8080
+          compression:
+            enabled: true
+            mime-types:
+              - application/json
+              - text/html</code><br/>Output JSON:<br/><code>{"server":{"port":8080,"compression":{"enabled":true,"mime-types":["application/json","text/html"]}}}</code></li></ul><h4>Validation:</h4>The input payload is strictly validated to ensure it represents a valid YAML document. Invalid or empty YAML content results in a <code>400 Bad Request</code> response.<br/><h4>Important Notes:</h4><ul><li>Request body must be valid YAML</li><li>Clients must not modify or sanitize the payload</li><li>Structural conversion only; no execution or evaluation of YAML content occurs</li></ul><h4>Authentication:</h4>Bearer token required in <code>Authorization</code> header.
+      operationId: convertYamlToJson
+      requestBody:
+        content:
+          text/plain:
+            examples:
+              Sample YAML:
+                description: Sample YAML
+                summary: Example input YAML
+                value: |-
+                  server:
+                    port: 8080
+                    compression:
+                      enabled: true
+                      mime-types:
+                        - application/json
+                        - text/html
+            schema:
+              description: "Any valid YAML document (object, array, or scalar value)"
+              type: string
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                server:
+                  port: 8080
+                  compression:
+                    enabled: true
+                    mime-types:
+                    - application/json
+                    - text/html
+              schema:
+                format: json
+                type: string
+          description: YAML successfully converted into JSON format
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid or empty YAML input
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many requests
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal server error
+      security:
+      - bearerAuth: []
+      summary: Convert YAML content to JSON format
+      tags:
+      - Data Conversions
+      x-content-type: text/plain
+      x-accepts:
+      - application/json
+  /api/v1/convert/data/xml-to-json:
+    post:
+      description: "This endpoint converts a well-formed XML document into a JSON\
+        \ representation, preserving structure, hierarchy, attributes, and text content.<br/><h4>Key\
+        \ Features:</h4><ul><li>Preserves XML element hierarchy and structure</li><li>Converts\
+        \ XML attributes using <code>@attribute</code> notation</li><li>Supports text\
+        \ nodes and mixed content using <code>#text</code> notation</li><li>Automatically\
+        \ groups repeated XML elements into JSON arrays</li><li>Optional array stabilization\
+        \ via <code>forceArray</code> parameter</li><li>Optional namespace removal\
+        \ via <code>stripNamespaces</code> parameter</li><li>Outputs formatted, human-readable\
+        \ JSON</li></ul><h4>Use Cases:</h4><ul><li>Transform XML payloads into JSON\
+        \ for modern REST or frontend applications</li><li>Integrate legacy XML-based\
+        \ systems with JSON-driven architectures</li><li>Normalize XML responses for\
+        \ SDKs and strongly typed clients</li></ul><h4>Validation:</h4>The input payload\
+        \ is strictly validated to ensure it is a valid XML document.<br/><br/><h4>Notes:</h4>Swagger\
+        \ UI may display a placeholder XML example for this endpoint. This does not\
+        \ reflect the actual request payload handling or conversion behavior.<br/>When\
+        \ enabled, <code>forceArray</code> ensures a stable JSON schema, which is\
+        \ particularly useful for strongly typed clients and SDKs.<br/><br/><h4>Authentication:</h4>This\
+        \ endpoint requires a valid <code>Bearer Token</code> in the <code>Authorization</code>\
+        \ header."
+      operationId: convertXmlToJson
+      parameters:
+      - description: "When enabled, XML elements that may occur multiple times under\
+          \ the same parent are always represented as JSON arrays, even if only a\
+          \ single occurrence is present in the input. Singular, non-repeating elements\
+          \ are never converted into arrays."
+        explode: true
+        in: query
+        name: forceArray
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      - description: "When enabled, XML namespace prefixes are removed from element\
+          \ and attribute names during conversion. The namespace URI information is\
+          \ discarded, resulting in cleaner and more readable JSON keys. When disabled,\
+          \ namespace prefixes are preserved. This option is useful when namespace\
+          \ information is not required by the consumer."
+        explode: true
+        in: query
+        name: stripNamespaces
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      requestBody:
+        content:
+          text/plain:
+            examples:
+              With root element:
+                description: With root element
+                summary: Standard XML document
+                value: |-
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <root>
+                    <user>
+                      <name>Alice</name>
+                      <age>30</age>
+                    </user>
+                  </root>
+              Attributes and mixed content:
+                description: Attributes and mixed content
+                summary: XML with attributes and text nodes
+                value: |-
+                  <book category="learning" cover="paperback">
+                    <title lang="en">Learning XML</title>
+                    <author>Team DevHub</author>
+                  </book>
+            schema:
+              description: XML payload (shown as plain text for documentation purposes)
+              type: string
+        description: "Raw XML payload to be converted into JSON.<br/><ul><li>The XML\
+          \ document is processed as-is</li><li>The root element is preserved as the\
+          \ top-level JSON key</li><li>No predefined XML schema is enforced</li><li>Mixed\
+          \ XML content is preserved using the <code>#text</code> field when text\
+          \ nodes and child elements coexist.</li><li>Empty XML elements are converted\
+          \ to empty JSON objects.</li><li>If an element occurs once, it is mapped\
+          \ as a single value; if repeated, it is mapped as an array.When <code>forceArray</code>\
+          \ is enabled, elements are always represented as arrays.</li><li>XML namespaces\
+          \ are preserved in element and attribute names.</li></ul><strong>Note:</strong><br/>Swagger\
+          \ UI may display a placeholder XML example (\"XML example cannot be generated;\
+          \ root element name is undefined\"). This is a limitation of Swagger UI\
+          \ and does not reflect the actual request payload accepted by the API."
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Sample JSON:
+                  description: Sample JSON
+                  summary: Example converted JSON
+                  value:
+                    user:
+                      name: Alice
+                      age: 30
+                      roles:
+                      - admin
+                      - editor
+                    active: true
+                    createdAt: 2025-11-01T12:30:00Z
+              schema:
+                description: Generated JSON document
+                format: json
+                type: string
+          description: Conversion successful
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid or empty or unsafe XML input
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many requests
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal server error
+      security:
+      - bearerAuth: []
+      summary: Convert XML to JSON
+      tags:
+      - Data Conversions
+      x-content-type: text/plain
+      x-accepts:
+      - application/json
+  /api/v1/convert/data/md-to-html:
+    post:
+      description: "This endpoint accepts raw Markdown content and converts it into\
+        \ sanitized HTML. The generated HTML can be styled using predefined CSS themes.<br/><h4>Key\
+        \ Features:</h4><ul><li>Accepts raw Markdown as <code>text/plain</code></li><li>Converts\
+        \ Markdown into sanitized HTML</li><li>Supports predefined CSS themes: LIGHT,\
+        \ DARK</li><li>Conversion results can be cached for performance</li></ul><h4>Use\
+        \ Cases:</h4><ul><li>Render Markdown documentation in web apps</li><li>Convert\
+        \ README files into styled HTML pages</li><li>Generate HTML previews with\
+        \ light or dark theme</li></ul><h4>Examples:</h4><ul><li><code>/md-to-html</code>\
+        \ – Renders HTML with default theme</li><li><code>/md-to-html?theme=DARK</code>\
+        \ – Renders HTML with dark theme</li><li><code>/md-to-html?theme=LIGHT</code>\
+        \ – Renders HTML with light theme</li></ul><h4>Important Notes:</h4><ul><li>Request\
+        \ body must be <code>text/plain</code></li><li>Clients must not alter the\
+        \ payload before sending</li><li>Client tools (e.g., Postman) may modify raw\
+        \ text if content type is incorrect</li></ul><h4>Authentication:</h4>Bearer\
+        \ token required in <code>Authorization</code> header."
+      operationId: convertMarkdownToHtml
+      parameters:
+      - description: CSS theme applied to generated HTML. Default is NONE.
+        explode: true
+        in: query
+        name: theme
+        required: false
+        schema:
+          default: NONE
+          enum:
+          - NONE
+          - LIGHT
+          - DARK
+          type: string
+        style: form
+      requestBody:
+        content:
+          text/plain:
+            examples:
+              Sample Markdown:
+                description: Sample Markdown
+                summary: Example Markdown input
+                value: |-
+                  # Hello World
+                  This is **Markdown** example.
+                  - Item 1
+                  - Item 2
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          content:
+            text/html:
+              example: <h1>Hello World</h1><p>This is <strong>Markdown</strong> example.</p>
+              schema:
+                type: string
+          description: HTML successfully generated
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid or empty Markdown content
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "413":
+          content:
+            application/json:
+              example:
+                error: "Payload Too Large: the request size exceeds the limit."
+                status: 413
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Payload too large
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many requests
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal server error
+      security:
+      - bearerAuth: []
+      summary: Convert Markdown to HTML
+      tags:
+      - Data Conversions
+      x-content-type: text/plain
+      x-accepts:
+      - application/json
+      - text/html
+  /api/v1/convert/data/json-to-yaml:
+    post:
+      description: |-
+        This endpoint accepts a valid JSON string and converts it into a YAML-formatted output. <br/>The converted YAML is returned as plain text using the application/yaml media type.<h4>Key Features:</h4><ul><li>Validates input to ensure it is a well-formed JSON document before conversion</li><li>Supports any valid JSON structure (objects, arrays, nested data)</li><li>Preserves data types, structure, and indentation</li><li>Minimizes unnecessary quotes while maintaining semantic correctness</li><li>Generates YAML compatible with common configuration formats and parsers</li></ul><h4>Use Cases:</h4><ul><li>Convert API responses or configuration data to YAML for improved readability</li><li>Generate YAML files for CI/CD pipelines, Docker Compose, or Kubernetes</li><li>Quickly reformat JSON configuration data for Spring Boot applications</li></ul><h4>Examples:</h4><ul><li>Input JSON:<br/><code>{"server":{"port":8080}}</code><br/>Output YAML:<br/><code>server:
+          port: 8080</code></li></ul><h4>Validation:</h4>The input payload is strictly validated to ensure it represents a valid JSON document.<br/><h4>Important Notes:</h4><ul><li>Request body must be valid JSON</li><li>Clients must not modify or sanitize the payload</li><li>Structural conversion only; YAML is generated from JSON and no execution occurs</li></ul><h4>Authentication:</h4>Bearer token required in <code>Authorization</code> header.
+      operationId: convertJsonToYaml
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Sample JSON:
+                description: Sample JSON
+                summary: Example input JSON
+                value:
+                  server:
+                    port: 8080
+                    compression:
+                      enabled: true
+                      mime-types:
+                      - application/json
+                      - text/html
+                  spring:
+                    profiles:
+                      active: prod
+                    datasource:
+                      url: jdbc:postgresql://localhost:5432/app
+                      username: app_user
+                      password: secret
+            schema:
+              description: Any valid JSON object or array
+              type: string
+        required: true
+      responses:
+        "200":
+          content:
+            application/yaml:
+              example: |-
+                server:
+                  port: 8080
+                  compression:
+                    enabled: true
+                    mime-types:
+                      - application/json
+                      - text/html
+                spring:
+                  profiles:
+                    active: prod
+                  datasource:
+                    url: jdbc:postgresql://localhost:5432/app
+                    username: app_user
+                    password: secret
+              schema:
+                type: string
+          description: JSON successfully converted into YAML format
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid or empty JSON input
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many requests
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal server error
+      security:
+      - bearerAuth: []
+      summary: Convert JSON content to YAML format
+      tags:
+      - Data Conversions
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+      - application/yaml
+  /api/v1/convert/data/json-to-xml:
+    post:
+      description: "This endpoint converts a well-formed JSON object or array into\
+        \ an XML document.<br/><h4>Key Features:</h4><ul><li>Preserves JSON hierarchy\
+        \ and structure in XML format</li><li>Supports nested objects, arrays, and\
+        \ primitive values</li><li>If the input JSON has a single top-level property,\
+        \ it is used as the XML root element. If multiple properties or an array are\
+        \ present, a synthetic <code>&lt;root&gt;</code> element is generated</li><li>Outputs\
+        \ indented, human-readable XML</li><li>Supports XML attributes using <code>@attribute</code>\
+        \ notation</li><li>Supports text nodes using <code>#text</code> notation</li><li>Automatically\
+        \ escapes XML-sensitive characters in values</li><li>Configurable array handling\
+        \ via <code>arrayMode</code> parameter (<code>FLAT</code> or <code>WRAPPED</code>)</li></ul><h4>Use\
+        \ Cases:</h4><ul><li>Generate XML from JSON configuration or API responses</li><li>Integrate\
+        \ RESTful JSON data with legacy XML-based systems</li><li>Transform microservice\
+        \ outputs for SOAP or XML-driven workflows</li></ul><h4>Validation:</h4>The\
+        \ input is strictly validated to ensure it is a valid JSON document.<br/><br/><h4>Authentication:</h4>This\
+        \ endpoint requires a valid <code>Bearer Token</code> in the <code>Authorization</code>\
+        \ header."
+      operationId: convertJsonToXml
+      parameters:
+      - description: "Controls how JSON arrays are represented in the generated XML\
+          \ output.<br/><ul><li><code>FLAT</code>: each array element is rendered\
+          \ as a repeated XML element with the same tag name</li><li><code>WRAPPED</code>:\
+          \ array elements are wrapped inside a parent element and rendered as <code>&lt;item&gt;</code>\
+          \ child nodes</li></ul>If not specified, the default behavior is <code>FLAT</code>."
+        explode: true
+        in: query
+        name: arrayMode
+        required: false
+        schema:
+          default: FLAT
+          enum:
+          - FLAT
+          - WRAPPED
+          type: string
+        style: form
+      requestBody:
+        content:
+          application/json:
+            examples:
+              With root element:
+                description: With root element
+                summary: JSON with multiple top-level properties (synthetic <root>
+                  element)
+                value:
+                  user:
+                    name: Alice
+                    age: 30
+                    roles:
+                    - admin
+                    - editor
+                  active: true
+                  createdAt: 2025-11-01T12:30:00Z
+              Without root element:
+                description: Without root element
+                summary: JSON with a single top-level property (used as XML root)
+                value:
+                  book:
+                    '@category': learning
+                    '@cover': paperback
+                    title:
+                      '@lang': us
+                      '#text': Learning XML Conversion
+                    author: Team DevHub API
+                    year: "2026"
+                    price: "10.99"
+            schema:
+              description: Valid JSON document to convert
+              type: string
+        required: true
+      responses:
+        "200":
+          content:
+            application/xml:
+              schema:
+                description: Generated XML document encoded in UTF-8
+                type: string
+          description: Conversion successful
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid or empty JSON input
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many requests
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal server error
+      security:
+      - bearerAuth: []
+      summary: Convert JSON to XML
+      tags:
+      - Data Conversions
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+      - application/xml
+  /api/v1/convert/data/json-to-csv:
+    post:
+      description: "This endpoint converts a JSON array of flat objects into a CSV\
+        \ text with customizable formatting.<br/>The CSV output is compatible with\
+        \ Excel by default using semicolon as delimiter.<br/><h4>Key Features:</h4><ul><li>Custom\
+        \ CSV formatting via query parameters</li><li>Supported delimiters: COMMA,\
+        \ SEMICOLON, PIPE, TAB</li><li>Configurable quote mode and quote character</li><li>Automatic\
+        \ header detection from the first JSON object</li><li>Missing fields rendered\
+        \ as empty cells</li></ul><h4>Use Cases:</h4><ul><li>Export frontend JSON\
+        \ data to CSV/Excel</li><li>Generate reports from API responses</li><li>Transform\
+        \ logs or datasets into tabular format</li></ul><h4>Examples:</h4><ul><li><code>/json-to-csv?delimiter=SEMICOLON</code>\
+        \ – Excel-compatible CSV using semicolon delimiter</li><li><code>/json-to-csv?delimiter=COMMA&quoteMode=NON_NUMERIC&quoteChar=DOUBLE_QUOTE</code>\
+        \ – Quote all non-numeric values using double quotes</li><li><code>/json-to-csv?delimiter=PIPE&quoteMode=ALL&quoteChar=SINGLE_QUOTE</code>\
+        \ – Pipe-delimited CSV with all values quoted</li><li><code>/json-to-csv?delimiter=TAB&quoteMode=NONE</code>\
+        \ – Tab-separated values with no quoting</li></ul><h4>Authentication:</h4>Bearer\
+        \ token required in <code>Authorization</code> header."
+      operationId: convertJsonToCsv
+      parameters:
+      - description: "CSV delimiter. Default: SEMICOLON"
+        explode: true
+        in: query
+        name: delimiter
+        required: false
+        schema:
+          default: SEMICOLON
+          enum:
+          - COMMA
+          - SEMICOLON
+          - PIPE
+          - TAB
+          type: string
+        style: form
+      - description: "Quote mode for CSV values. Default: NONE"
+        explode: true
+        in: query
+        name: quoteMode
+        required: false
+        schema:
+          default: NONE
+          enum:
+          - ALL
+          - ALL_NON_NULL
+          - MINIMAL
+          - NON_NUMERIC
+          - NONE
+          type: string
+        style: form
+      - description: Character to quote fields (ignored if quoteMode is NONE)
+        explode: true
+        in: query
+        name: quoteChar
+        required: false
+        schema:
+          enum:
+          - DOUBLE_QUOTE
+          - SINGLE_QUOTE
+          - BACKTICK
+          type: string
+        style: form
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Sample JSON:
+                description: Sample JSON
+                summary: Example input
+                value:
+                - username: alice
+                  age: 28
+                  premium: true
+                - username: bob
+                  age: 31
+                  premium: false
+            schema:
+              items:
+                additionalProperties: {}
+              type: array
+        description: JSON array of objects to convert
+        required: true
+      responses:
+        "200":
+          content:
+            text/csv:
+              examples:
+                Sample CSV:
+                  description: Sample CSV
+                  summary: Example CSV output
+                  value: |-
+                    username;age;premium
+                    alice;28;true
+                    bob;31;false
+              schema:
+                type: string
+          description: CSV successfully generated
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid input or CSV formatting options
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many requests
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal server error
+      security:
+      - bearerAuth: []
+      summary: Convert JSON array to CSV
+      tags:
+      - Data Conversions
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+      - text/csv
+  /api/v1/convert/data/html-to-md:
+    post:
+      description: "This endpoint accepts structured HTML content and converts it\
+        \ into clean, readable Markdown. The conversion is deterministic and developer-friendly,\
+        \ producing Markdown suitable for versioning, storage, or further processing.<br/><h4>Key\
+        \ Features:</h4><ul><li>Accepts raw HTML content as <code>text/plain</code></li><li>Converts\
+        \ structured HTML into clean and readable Markdown</li><li>Deterministic conversion\
+        \ with predictable output</li><li>Supports common HTML elements: headings,\
+        \ lists, links, code blocks, tables</li><li>Unsupported or unsafe HTML elements,\
+        \ and all CSS (inline or external), are ignored without failing conversion</li></ul><h4>Use\
+        \ Cases:</h4><ul><li>Migrate HTML-based documentation to Markdown</li><li>Convert\
+        \ content from WYSIWYG editors into Markdown format</li><li>Store CMS-generated\
+        \ HTML content as versionable Markdown</li><li>Normalize HTML input for developer-focused\
+        \ documentation pipelines</li></ul><h4>Examples:</h4><ul><li><code>&lt;h1&gt;Title&lt;/h1&gt;&lt;p&gt;Hello\
+        \ &lt;strong&gt;world&lt;/strong&gt;&lt;/p&gt;</code><br/>Returns:<br/><code>#\
+        \ Title<br><br>Hello **world**</code></li></ul><h4>Important Notes:</h4><ul><li>Request\
+        \ body must be <code>text/plain</code></li><li>HTML input is normalized server-side\
+        \ to remove non-semantic whitespace for consistent Markdown output</li><li>Whitespace\
+        \ that is part of the HTML (e.g., after <code>&lt;br&gt;</code>) is preserved</li><li>Clients\
+        \ must not alter or sanitize the input payload</li><li>Client-side tools (e.g.,\
+        \ Postman) may modify raw text if content type is incorrect</li><li>Structural\
+        \ conversion only; HTML is not executed, rendered, or sanitized</li></ul><h4>Authentication:</h4>Bearer\
+        \ token required in <code>Authorization</code> header."
+      operationId: convertHtmlToMarkdown
+      requestBody:
+        content:
+          text/plain:
+            examples:
+              Sample HTML:
+                description: Sample HTML
+                summary: Example HTML input
+                value: |-
+                  <h1>Hello World</h1>
+                  <p>This is a <strong>HTML</strong> example.</p>
+                  <ul><li>Item 1</li><li>Item 2</li></ul>
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          content:
+            text/markdown:
+              example: |-
+                # Hello World
+
+                This is **HTML** example.
+                - Item 1
+                - Item 2
+              schema:
+                type: string
+          description: Markdown successfully generated
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid or empty HTML content
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "413":
+          content:
+            application/json:
+              example:
+                error: "Payload Too Large: the request size exceeds the limit."
+                status: 413
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Payload too large
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many requests
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal server error
+      security:
+      - bearerAuth: []
+      summary: Convert HTML to Markdown
+      tags:
+      - Data Conversions
+      x-content-type: text/plain
+      x-accepts:
+      - application/json
+      - text/markdown
+  /api/v1/convert/data/csv-to-json:
+    post:
+      description: "This endpoint converts a CSV text payload into a JSON array of\
+        \ objects. CSV parsing behavior can be customized using query parameters such\
+        \ as delimiter, quote mode, and header handling. The first CSV row must contain\
+        \ column headers.<br/><h4>Key Features:</h4><ul><li>Supports CSV input as\
+        \ plain text (not file upload)</li><li>Custom delimiter: comma, semicolon,\
+        \ pipe, tab</li><li>Configurable quote mode and quote character</li><li>Mandatory\
+        \ header row to ensure deterministic JSON output</li><li>Automatic type inference\
+        \ (boolean, number, date, datetime)</li><li>Empty fields are converted to\
+        \ <code>null</code></li><li>Numeric values with leading zeros are preserved\
+        \ as strings</li></ul><h4>Use Cases:</h4><ul><li>Convert user-uploaded CSV\
+        \ data to structured JSON</li><li>Normalize CSV datasets for API consumption</li><li>Preprocess\
+        \ tabular data for analytics or validation</li></ul><h4>Examples:</h4><ul><li><code>/csv-to-json?delimiter=COMMA&quoteMode=MINIMAL&quoteChar=DOUBLE_QUOTE</code><br/>Standard\
+        \ CSV with quoted fields containing commas</li><li><code>/csv-to-json?delimiter=SEMICOLON&quoteMode=NONE</code><br/>Excel-compatible\
+        \ CSV with no quoting</li><li><code>/csv-to-json?delimiter=PIPE&firstRowAsHeader=false</code><br/>Pipe-delimited\
+        \ CSV without header row</li></ul><h4>Authentication:</h4>This endpoint requires\
+        \ a valid <code>Bearer Token</code> in the <code>Authorization</code> header."
+      operationId: convertCsvToJson
+      parameters:
+      - description: CSV delimiter character. Default value is SEMICOLON.
+        explode: true
+        in: query
+        name: delimiter
+        required: false
+        schema:
+          default: SEMICOLON
+          enum:
+          - COMMA
+          - SEMICOLON
+          - PIPE
+          - TAB
+          type: string
+        style: form
+      - description: Defines how quoted fields are handled. Default value is NONE.
+        explode: true
+        in: query
+        name: quoteMode
+        required: false
+        schema:
+          default: NONE
+          enum:
+          - ALL
+          - ALL_NON_NULL
+          - MINIMAL
+          - NON_NUMERIC
+          - NONE
+          type: string
+        style: form
+      - description: Character used to quote CSV fields. Ignored if quoteMode is NONE.
+        explode: true
+        in: query
+        name: quoteChar
+        required: false
+        schema:
+          enum:
+          - DOUBLE_QUOTE
+          - SINGLE_QUOTE
+          - BACKTICK
+          type: string
+        style: form
+      - description: "Trim leading and trailing whitespace from field values. Default:\
+          \ true."
+        explode: true
+        in: query
+        name: trimFields
+        required: false
+        schema:
+          default: true
+          type: boolean
+        style: form
+      - description: "Automatically infer field types (boolean, number, date). Default:\
+          \ true."
+        explode: true
+        in: query
+        name: inferTypes
+        required: false
+        schema:
+          default: true
+          type: boolean
+        style: form
+      requestBody:
+        content:
+          text/plain:
+            examples:
+              Sample CSV Semicolon:
+                description: Sample CSV Semicolon
+                summary: CSV input example using semicolon
+                value: |-
+                  id;name;age;isActive
+                  1;Alice;28;true
+                  2;Bob;00031;false
+                  3;Charlie;;true
+              Sample CSV Comma Minimal Quotes:
+                description: Sample CSV Comma Minimal Quotes
+                summary: CSV input example using comma and QuoteMode.MINIMAL with
+                  double quotes
+                value: |-
+                  id,name,age,isActive,notes
+                  1,"Alice, A.",28,true,"Premium user"
+                  2,Bob,31,false,"Inactive, needs verification"
+                  3,Charlie,,true,"Missing age"
+                  4,"David, D.",45,true,"Contains comma, and quotes"
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Sample JSON Output:
+                  description: Sample JSON Output
+                  summary: Example JSON array resulting from CSV
+                  value:
+                  - id: "1"
+                    name: Alice
+                    age: 28
+                    isActive: true
+                  - id: "2"
+                    name: Bob
+                    age: "00031"
+                    isActive: false
+                  - id: "3"
+                    name: Charlie
+                    age: null
+                    isActive: true
+              schema:
+                items: {}
+                type: array
+          description: CSV successfully converted to JSON
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid CSV input or invalid parsing options
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "413":
+          content:
+            application/json:
+              example:
+                error: "Payload Too Large: the request size exceeds the limit."
+                status: 413
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Payload too large
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many requests
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/convert/data/example
+                requestId: d7032406-b49e-4786-96cc-42cda8dc6e45
+                supportCode: DATA_CONVERSION_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal server error
+      security:
+      - bearerAuth: []
+      summary: Convert CSV text to JSON array with type inference
+      tags:
+      - Data Conversions
+      x-content-type: text/plain
+      x-accepts:
+      - application/json
+  /api/v1/tools/uuid:
+    get:
+      description: "Generates UUID version 4 (random) or version 5 (deterministic,\
+        \ namespace-based).<br/><br/><h4>Key Features:</h4><ul><li>Generate between\
+        \ 1 and 100 UUIDs for v4</li><li>Generate deterministic UUID v5 using namespace\
+        \ + name</li><li>Suitable for unique identifiers or reproducible resource\
+        \ IDs</li></ul><h4>Behavior:</h4><ul><li>Default version is <b>v4</b></li><li>For\
+        \ <b>v5</b>, both <code>namespace</code> and <code>name</code> are required</li><li>UUID\
+        \ v5 is deterministic: same namespace + name → same UUID</li><li>For v5, <code>count</code>\
+        \ must be exactly <b>1</b></li></ul><h4>Authentication:</h4>Requires a valid\
+        \ <code>Bearer Token</code> in the Authorization header."
+      operationId: generateUuid
+      parameters:
+      - description: "UID version to generate. Must be <b>v4</b> for random UUID (non-deterministic)\
+          \ or <b>v5</b> for namespaced UUID (deterministic, based on namespace +\
+          \ name). Default value is <code>v4</code>"
+        example: v4
+        explode: true
+        in: query
+        name: version
+        required: false
+        schema:
+          default: v4
+          type: string
+        style: form
+      - description: Number of UUIDs to generate. Must be between <b>1</b> and <b>100</b>
+          for <b>v4</b> and exactly <b>1</b> to <b>v5</b> (deterministic generation).
+          Default value is <code>1</code>
+        example: 5
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 1
+          format: int32
+          type: integer
+        style: form
+      - description: Required only for <b>v5</b> (namespaced deterministic generation).
+          No strict UUID format required
+        explode: true
+        in: query
+        name: namespace
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Name value used for UUID v5 generation. Required only when <code>version
+          = v5</code>. The same <code>namespace</code> + <code>name</code> combination
+          will always generate the same UUID
+        explode: true
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Sample UUID Response v4:
+                  description: Sample UUID Response v4
+                  summary: Example output for generating UUID(s) v4
+                  value:
+                    uuid:
+                    - 416f3eed-71df-4bed-8607-8ef09557e087
+                    - 2511a22a-641a-44e0-b287-6e8e1b0321b5
+                    - 33d61268-62aa-4be7-bfa9-fb5d1f241ad0
+                Sample UUID Response v5:
+                  description: Sample UUID Response v5
+                  summary: Example output for generating UUID v5
+                  value:
+                    uuid:
+                    - f5f460e6-0f18-49b2-9b02-6c27ba1e42dd
+              schema:
+                $ref: "#/components/schemas/UUIDResponse"
+          description: UUID(s) successfully generated
+        "400":
+          content:
+            application/json:
+              example:
+                error: "Bad Request: your request contains invalid parameters."
+                status: 400
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Invalid input
+        "401":
+          content:
+            application/json:
+              example:
+                error: "Unauthorized: authentication is required or failed."
+                status: 401
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              example:
+                error: "Forbidden: you do not have permission to access this resource."
+                status: 403
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              example:
+                error: "Too Many Requests: you have exceeded your rate limit."
+                status: 429
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Too many request
+        "500":
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error: something went wrong on the server."
+                status: 500
+                path: /api/v1/tools/example
+                requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+                supportCode: TOOLS_001
+                timestamp: 2026-01-11T15:42:10.123
+              schema:
+                $ref: "#/components/schemas/DevHubErrorResponse"
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+      summary: Generate UUID (v4 or v5)
+      tags:
+      - Tools
+      x-accepts:
+      - application/json
+components:
+  parameters:
+    XRequestIdHeader:
+      description: Optional request correlation id (UUID)
+      explode: false
+      in: header
+      name: X-Request-Id
+      required: false
+      schema:
+        format: uuid
+      style: simple
+  schemas:
+    Text:
+      description: A generic object that accepts a text as only parameter
+      example:
+        text: text
+      properties:
+        text:
+          description: The generic text to process
+          type: string
+    DevHubErrorResponse:
+      description: Standard error response for DevHub APIs
+      example:
+        path: /api/v1/example/api-example
+        requestId: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+        error: The requested resource was not found.
+        supportCode: supportCode
+        status: 404
+        timestamp: 2026-01-11T15:42:10.123
+      properties:
+        error:
+          description: Human-readable error message
+          example: The requested resource was not found.
+          type: string
+        status:
+          description: HTTP status code
+          example: 404
+          format: int32
+          type: integer
+        path:
+          description: API path that generated the error
+          example: /api/v1/example/api-example
+          type: string
+        requestId:
+          description: Unique request identifier for log correlation
+          example: c7a8b1c0-8c8a-4c4f-b8a1-9a2f4d5c6e7f
+          type: string
+        supportCode:
+          description: Support error code used for troubleshooting and documentation
+          type: string
+        timestamp:
+          description: Timestamp of the error occurrence
+          example: 2026-01-11T15:42:10.123
+          type: string
+    PasswordRequest:
+      description: Request body for generating custom random passwords
+      example:
+        includeNumbers: true
+        excludedSpecials: excludedSpecials
+        strength: strength
+        includeLetters: true
+        includeSpecials: true
+        length: 0
+      properties:
+        length:
+          format: int32
+          type: integer
+        strength:
+          type: string
+        includeLetters:
+          type: boolean
+        includeNumbers:
+          type: boolean
+        includeSpecials:
+          type: boolean
+        excludedSpecials:
+          type: string
+    PasswordResponse:
+      description: Response containing the generated password
+      example:
+        password: aB8@dF9!pT3#
+      properties:
+        password:
+          description: Password generated according to the specified criteria
+          example: aB8@dF9!pT3#
+          type: string
+    AuthResponse:
+      description: Standard response in witch is present Bearer token
+      example:
+        accessToken: accessToken
+        tokenType: tokenType
+        refreshToken: refreshToken
+      properties:
+        accessToken:
+          description: The JWT access token to authenticate to APIs
+          type: string
+        tokenType:
+          description: "Token type, always 'Bearer'"
+          type: string
+        refreshToken:
+          description: Optional refresh token to obtain new access token
+          type: string
+    RefreshTokenRequest:
+      description: Request containing refresh token to obtain a new access token
+      example:
+        refreshToken: refreshToken
+      properties:
+        refreshToken:
+          description: Refresh token issued at login
+          type: string
+    AuthRequest:
+      description: Standard request to log-in and receive Bearer token
+      example:
+        password: password
+        username: username
+      properties:
+        username:
+          description: Username credential
+          type: string
+        password:
+          description: Password credential
+          type: string
+    ValidateRequest:
+      example:
+        input: input
+        rules:
+        - rules
+        - rules
+        failFast: true
+      properties:
+        input:
+          type: string
+        rules:
+          items:
+            type: string
+          type: array
+        failFast:
+          type: boolean
+    ValidateResponse:
+      example:
+        valid: true
+        errors:
+        - rule: rule
+          message: message
+        - rule: rule
+          message: message
+      properties:
+        valid:
+          type: boolean
+        errors:
+          items:
+            $ref: "#/components/schemas/ValidationError"
+          type: array
+    ValidationError:
+      example:
+        rule: rule
+        message: message
+      properties:
+        rule:
+          type: string
+        message:
+          type: string
+    SanitizationRequest:
+      example:
+        mode: mode
+        input: input
+        operations:
+        - NONE
+        - NONE
+        context: context
+      properties:
+        input:
+          type: string
+        context:
+          type: string
+        mode:
+          type: string
+        operations:
+          items:
+            enum:
+            - NONE
+            - NORMALIZE_WHITESPACE
+            - LOWERCASE
+            - REMOVE_ACCENTS
+            - REMOVE_PII
+            type: string
+          type: array
+    SanitizationResult:
+      example:
+        riskLevel: riskLevel
+        sanitized: sanitized
+        actionsApplied:
+        - actionsApplied
+        - actionsApplied
+        explanations:
+        - explanations
+        - explanations
+        riskScore: 0
+        contextApplied: HTML
+        issuesDetected:
+        - issuesDetected
+        - issuesDetected
+      properties:
+        sanitized:
+          type: string
+        contextApplied:
+          enum:
+          - HTML
+          - JSON
+          - CSV
+          - LOG
+          type: string
+        issuesDetected:
+          items:
+            type: string
+          type: array
+        actionsApplied:
+          items:
+            type: string
+          type: array
+        riskLevel:
+          type: string
+        riskScore:
+          format: int32
+          type: integer
+        explanations:
+          items:
+            type: string
+          type: array
+    UUIDResponse:
+      description: Response containing the generated UUIDs
+      example:
+        uuid:
+        - uuid
+        - uuid
+      properties:
+        uuid:
+          items:
+            type: string
+          type: array
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+
