@@ -1,5 +1,9 @@
 # DevHub Java SDK
 
+![Java](https://img.shields.io/badge/Java-17+-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Status-Active-success)
+
 Official Java SDK for DevHub API.
 
 A fluent, developer-friendly Java client for accessing DevHub API services. Maintained by the DevHub project.
@@ -148,7 +152,7 @@ Please follow the [installation](#installation) instruction and execute the foll
 	String html = "<p>html example text</p><script>alert(1)</script>";
 	SanitizationResult htmlSanitized = protection.sanitize(html)
 			.html()
-			.mode(SanitizationHtmlMode.STRICT) //for html only, we can optionally set the sanitization mode by choosing between STRICT, RELAXED or HARDENING (default is RELAXED)
+			.mode(SanitizationHtmlMode.STRICT)
 			.execute();
 	
 	//Validate text detecting potential sql injection
