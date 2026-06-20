@@ -1,7 +1,7 @@
 # DevHub Java SDK
 
 ![Java](https://img.shields.io/badge/Java-17+-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 
 Official Java SDK for DevHub API.
